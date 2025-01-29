@@ -27,9 +27,14 @@ jobs:
         run: |
           pip freeze > requirements.txt
 
+      - name: Test python
+        run: |
+          python3 test.py
+
       - name: Commit and push updated requirements.txt
         uses: EndBug/add-and-commit@v7
         with:
           author_name: 'GitHub Actions'
           author_email: 'github-actions@github.com'
           message: 'Update requirements.txt with latest dependencies'
+          token: ${{ secrets.GITHUB_TOKEN }} 
