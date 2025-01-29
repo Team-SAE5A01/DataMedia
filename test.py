@@ -1,21 +1,11 @@
-import requests
+import sh
 
-# Define the base URL of the FastAPI app
-BASE_URL = "http://127.0.0.1:8000"
+# Run a simple shell command
+print(sh.ls("-l"))
 
-# 1. Make a GET request
-def make_get_request():
-    response = requests.get(f"{BASE_URL}/items/42", params={"q": "example"})
-    print("GET Response:")
-    print(response.status_code, response.json())
+# Capture command output
+output = sh.echo("Hello from sh!")
+print(output)
 
-# 2. Make a POST request
-def make_post_request():
-    data = {"name": "Test Item", "value": 123}
-    response = requests.post(f"{BASE_URL}/endpoint", json=data)
-    print("POST Response:")
-    print(response.status_code, response.json())
-
-if __name__ == "__main__":
-    make_get_request()
-    make_post_request()
+# Run commands with sudo (prompting for a password)
+# sh.sudo("apt-get", "update")
