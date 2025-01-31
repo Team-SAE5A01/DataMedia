@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose the port on which the app will run (for example, port 8000)
-EXPOSE 8000
+EXPOSE 4500
 
 # Command to run the application with a binding to 0.0.0.0 (access from outside the container)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4500", "--reload"]

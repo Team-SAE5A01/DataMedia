@@ -1,19 +1,36 @@
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 from pymongo import MongoClient
 
-username = "root"
-password = "JesusATM12"
-host = "54.174.50.209:3306"  # Change if using a remote server
-database_name = "Wheeltrip"
+
+MYSQL_PORT=3306
+MONGO_PORT=27017
+
+USERNAME="root"
+PASSWORD="JesusATM12"
+REMOTE_HOST="172.31.36.57"
+DATABASE="Wheeltrip"
 
 # Configuration MySQL
-engine = create_engine(f"mysql+mysqlconnector://{username}:{password}@{host}")
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-Base = declarative_base()
+class MySqlConf():
+    def launch_engine(self):
+        MYSQL_ENGINE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{REMOTE_HOST}:{MYSQL_PORT}/{DATABASE}"
+        
+        engine = create_engine(MYSQL_ENGINE_URL)
+        
+        SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+        Base = declarative_base()
+
+        return engine, SessionLocal, Base
+
+# Usage
+engine, SessionLocal, Base = MySqlConf().launch_engine() 
 
 # Configuration MongoDB
-MONGO_DATABASE_URL = "mongodb://root:JesusATM12@54.174.50.209:27017/"
-mongo_client = MongoClient(MONGO_DATABASE_URL)
-mongo_db = mongo_client["my_mongo_db"]  # Remplace par le nom de ta DB
+class MongoConf():
+    def get_connection(self):
+        MONGO_DATABASE_URL = f"mongodb://{USERNAME}:{PASSWORD}@{REMOTE_HOST}:{MONGO_PORT}/"
+        return MongoClient(MONGO_DATABASE_URL)[DATABASE]
+    
+mongo_db = MongoConf().get_connection()
