@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from . import crud, schemas, database
+from . import config, crud, schemas
 
 router = APIRouter()
 
 def get_db():
-    db = database.SessionLocal()
+    db = config.SessionLocal()
     try:
         yield db
     finally:
@@ -26,12 +26,12 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 # Routes pour MongoDB (Trajets)
 @router.post("/trajets/")
 def create_trajet(trajet: schemas.TrajetBase):
-    collection = database.mongo_db["trajets"]
+    collection = config.mongo_db["trajets"]
     return {"id": crud.create_trajet(collection, trajet)}
 
 @router.get("/trajets/{user_id}")
 def get_trajet(user_id: int):
-    collection = database.mongo_db["trajets"]
+    collection = config.mongo_db["trajets"]
     trajet = crud.get_trajet(collection, user_id)
     if trajet is None:
         raise HTTPException(status_code=404, detail="Trajet not found")

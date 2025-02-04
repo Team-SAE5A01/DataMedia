@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from pymongo.collection import Collection
-from . import models, schemas, database
+from . import config, models, schemas
 
 # CRUD pour MySQL
 def create_user(db: Session, user: schemas.UserCreate):
