@@ -21,15 +21,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull the latest image (if available)
+      - name: Build docker image
         run: |
-          docker pull jesusalejandrotm12/datamedia:latest || echo "No previous image found"
+          docker build -t jesusalejandrotm12/datamedia:${{ github.sha }} -t jesusalejandrotm12/datamedia:latest .
 
-      - name: Tag the image with the latest commit SHA
+      - name: Push the latest and tagged docker image
         run: |
-          docker tag jesusalejandrotm12/datamedia:latest jesusalejandrotm12/datamedia:${{ github.sha }}
-
-      - name: Push the latest and tagged image
-        run: |
-          docker push jesusalejandrotm12/datamedia:latest
           docker push jesusalejandrotm12/datamedia:${{ github.sha }}
+          docker push jesusalejandrotm12/datamedia:latest
