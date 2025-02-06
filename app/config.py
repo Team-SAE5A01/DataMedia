@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-environment = os.getenv('ENVIRONMENT', 'local')
+environment = os.getenv('ENVIRONMENT')
 
 if environment == 'local':
     hostname = os.getenv("LOCALHOST")
