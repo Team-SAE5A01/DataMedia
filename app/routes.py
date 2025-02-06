@@ -40,4 +40,4 @@ def get_trajet(user_id: int):
 
 @router.get("/test")
 def def_test():
-    return {"Hello" : "World"}
+    return {"Test" : "Hello world!"}
