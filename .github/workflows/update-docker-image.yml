@@ -23,7 +23,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          docker build -t jesusalejandrotm12/datamedia:${{ github.sha }} -t jesusalejandrotm12/datamedia:latest .
+          docker build -t jesusalejandrotm12/datamedia:${{ github.sha }} -t jesusalejandrotm12/datamedia:latest . --no-cache
 
       - name: Push the latest and tagged docker image
         run: |
