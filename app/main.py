@@ -1,13 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import router
-
+from .config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
 app = FastAPI()
 
 # CORS configuration
-origins = [
-    "http://localhost:3000",
-]
+if ENVIRONMENT.lower() in ["local", "development"]:
+    origins = [
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+    ]
+else:
+    # CORS configuration
+    origins = [
+        f"{REQUEST_PROTOCOL}://{FRONTEND_HOSTNAME}:{WHEELTRIP_USER_PORT}",
+    ]
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(

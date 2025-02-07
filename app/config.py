@@ -6,27 +6,35 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-environment = os.getenv('ENVIRONMENT')
+ENVIRONMENT = os.getenv('ENVIRONMENT', "local")
 
-if environment == 'local':
-    hostname = os.getenv("LOCALHOST")
-elif environment == 'production':
-    hostname = os.getenv("AWS_BACKEND_IP") 
+if ENVIRONMENT == 'local':
+    aws_backend_hostname = os.getenv("LOCALHOST")
+    aws_frontend_hostname = os.getenv("LOCALHOST")
+elif ENVIRONMENT == 'production':
+    aws_backend_hostname = os.getenv("AWS_BACKEND_IP")
+    aws_frontend_hostname = os.getenv("AWS_FRONTEND_IP")
+
 else:
-    hostname = os.getenv("LOCALHOST") 
+    aws_backend_hostname = os.getenv("LOCALHOST") 
+    aws_frontend_hostname = os.getenv("LOCALHOST")
 
-MYSQL_PORT=os.getenv("AWS_MYSQL_PORT")
-MONGO_PORT=os.getenv("AWS_MONGODB_PORT")
+BACKEND_HOSTNAME=aws_backend_hostname
+FRONTEND_HOSTNAME=aws_frontend_hostname
 
-HOSTNAME=hostname
-USERNAME=os.getenv("AWS_DATABASE_USERNAME")
-PASSWORD=os.getenv("AWS_DATABASE_PASSWORD")
-DATABASE=os.getenv("AWS_DATABASE_NAME")
+MYSQL_PORT=os.getenv("MYSQL_PORT")
+MONGO_PORT=os.getenv("MONGODB_PORT")
+WHEELTRIP_USER_PORT=os.getenv("WHEELTRIP_USER_PORT")
+
+USERNAME=os.getenv("DATABASE_USERNAME")
+PASSWORD=os.getenv("DATABASE_PASSWORD")
+DATABASE=os.getenv("DATABASE_NAME")
+REQUEST_PROTOCOL=os.getenv("REQUEST_PROTOCOL")
 
 # Configuration MySQL
 class MySqlConf():
     def launch_engine(self):
-        MYSQL_ENGINE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{HOSTNAME}:{MYSQL_PORT}/{DATABASE}"
+        MYSQL_ENGINE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{BACKEND_HOSTNAME}:{MYSQL_PORT}/{DATABASE}"
         
         engine = create_engine(MYSQL_ENGINE_URL)
         
@@ -41,7 +49,7 @@ engine, SessionLocal, Base = MySqlConf().launch_engine()
 # Configuration MongoDB
 class MongoConf():
     def get_connection(self):
-        MONGO_DATABASE_URL = f"mongodb://{USERNAME}:{PASSWORD}@{HOSTNAME}:{MONGO_PORT}/"
+        MONGO_DATABASE_URL = f"mongodb://{USERNAME}:{PASSWORD}@{BACKEND_HOSTNAME}:{MONGO_PORT}/"
         return MongoClient(MONGO_DATABASE_URL)[DATABASE]
     
 mongo_db = MongoConf().get_connection()
