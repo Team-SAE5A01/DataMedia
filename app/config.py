@@ -9,18 +9,18 @@ from pathlib import Path
 ENVIRONMENT = os.getenv('ENVIRONMENT', "local")
 
 if ENVIRONMENT == 'local':
-    aws_backend_hostname = os.getenv("LOCALHOST")
-    aws_frontend_hostname = os.getenv("LOCALHOST")
+    backend_hostname = os.getenv("LOCALHOST")
+    frontend_hostname = os.getenv("LOCALHOST")
 elif ENVIRONMENT == 'production':
-    aws_backend_hostname = os.getenv("AWS_BACKEND_IP")
-    aws_frontend_hostname = os.getenv("AWS_FRONTEND_IP")
+    backend_hostname = os.getenv("AWS_BACKEND_IP")
+    frontend_hostname = os.getenv("AWS_FRONTEND_IP")
 
 else:
-    aws_backend_hostname = os.getenv("LOCALHOST") 
-    aws_frontend_hostname = os.getenv("LOCALHOST")
+    backend_hostname = os.getenv("LOCALHOST") 
+    frontend_hostname = os.getenv("LOCALHOST")
 
-BACKEND_HOSTNAME=aws_backend_hostname
-FRONTEND_HOSTNAME=aws_frontend_hostname
+BACKEND_HOSTNAME=backend_hostname
+FRONTEND_HOSTNAME=frontend_hostname
 
 MYSQL_PORT=os.getenv("MYSQL_PORT")
 MONGO_PORT=os.getenv("MONGODB_PORT")
