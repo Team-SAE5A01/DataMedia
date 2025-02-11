@@ -41,7 +41,7 @@ def get_trajet(user_id: int):
 @router.get("/test")
 def def_test():
     return {
-        "Test" : "Hello my people!",
+        "Test" : "Hello great people!",
         "ENV" : config.ENVIRONMENT,
         "BACKEND_HOST" : config.BACKEND_HOSTNAME,
         "FRONT_HOST" : config.FRONTEND_HOSTNAME,
