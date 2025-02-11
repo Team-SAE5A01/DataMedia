@@ -40,4 +40,16 @@ def get_trajet(user_id: int):
 
 @router.get("/test")
 def def_test():
-    return {"Test" : "Hello my people!"}
+    return {
+        "Test" : "Hello my people!",
+        "ENV" : config.ENVIRONMENT,
+        "BACKEND_HOST" : config.BACKEND_HOSTNAME,
+        "FRONT_HOST" : config.FRONTEND_HOSTNAME,
+        "MYSQL_PORT" : config.MYSQL_PORT,
+        "MONGO_PORT" : config.MONGO_PORT,
+        "WHEELTRIP_USER_PORT" : config.WHEELTRIP_USER_PORT,
+        "USERNAME" : config.USERNAME,
+        "PASSWORD" : config.PASSWORD,
+        "DATABASE" : config.DATABASE,
+        "REQUEST_PROTOCOL" : config.REQUEST_PROTOCOL,
+        }

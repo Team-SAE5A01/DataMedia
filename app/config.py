@@ -2,34 +2,44 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from pymongo import MongoClient
+from dopplersdk import DopplerSDK
 import os
-from dotenv import load_dotenv
-from pathlib import Path
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', "local")
+# Doppler config
+access_token = "dp.st.prd.QamSTwT1Gd3mgJosbdWPrtoS6LgF4L98PxFjZ8TwNeA"
+doppler_config = "prd"
+doppler_project = "wheeltrip"
+
+# Initialize Doppler secrets management
+doppler = DopplerSDK()
+doppler.set_access_token(access_token)
+
+def get_secret(name, config=doppler_config, project=doppler_project):
+    return doppler.secrets.get(name, config, project).value['raw']
+
+ENVIRONMENT = os.getenv("NEXT_PUBLIC_BUILD_ENV", "development")
 
 if ENVIRONMENT == 'local':
-    backend_hostname = os.getenv("LOCALHOST")
-    frontend_hostname = os.getenv("LOCALHOST")
+    backend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
+    frontend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
 elif ENVIRONMENT == 'production':
-    backend_hostname = os.getenv("AWS_BACKEND_IP")
-    frontend_hostname = os.getenv("AWS_FRONTEND_IP")
-
+    backend_hostname = get_secret("NEXT_PUBLIC_AWS_BACKEND_IP")
+    frontend_hostname = get_secret("NEXT_PUBLIC_AWS_FRONTEND_IP")
 else:
-    backend_hostname = os.getenv("LOCALHOST") 
-    frontend_hostname = os.getenv("LOCALHOST")
+    backend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
+    frontend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
 
-BACKEND_HOSTNAME=backend_hostname
-FRONTEND_HOSTNAME=frontend_hostname
+BACKEND_HOSTNAME = backend_hostname
+FRONTEND_HOSTNAME = frontend_hostname
 
-MYSQL_PORT=os.getenv("MYSQL_PORT")
-MONGO_PORT=os.getenv("MONGODB_PORT")
-WHEELTRIP_USER_PORT=os.getenv("WHEELTRIP_USER_PORT")
+MYSQL_PORT = get_secret("NEXT_PUBLIC_MYSQL_PORT")
+MONGO_PORT = get_secret("NEXT_PUBLIC_MONGODB_PORT")
+WHEELTRIP_USER_PORT = get_secret("NEXT_PUBLIC_WHEELTRIP_USER_PORT")
 
-USERNAME=os.getenv("DATABASE_USERNAME")
-PASSWORD=os.getenv("DATABASE_PASSWORD")
-DATABASE=os.getenv("DATABASE_NAME")
-REQUEST_PROTOCOL=os.getenv("REQUEST_PROTOCOL")
+USERNAME = get_secret("NEXT_PUBLIC_DATABASE_USERNAME")
+PASSWORD = get_secret("NEXT_PUBLIC_DATABASE_PASSWORD")
+DATABASE = get_secret("NEXT_PUBLIC_DATABASE_NAME")
+REQUEST_PROTOCOL = get_secret("NEXT_PUBLIC_REQUEST_PROTOCOL")
 
 # Configuration MySQL
 class MySqlConf():
