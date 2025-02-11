@@ -17,7 +17,7 @@ doppler.set_access_token(access_token)
 def get_secret(name, config=doppler_config, project=doppler_project):
     return doppler.secrets.get(name, config, project).value['raw']
 
-ENVIRONMENT = os.getenv("NEXT_PUBLIC_BUILD_ENV", "development")
+ENVIRONMENT = os.getenv("NEXT_PUBLIC_BUILD_ENV", "UNDEFINED")
 
 if ENVIRONMENT == 'local':
     backend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
