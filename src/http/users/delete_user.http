@@ -1,2 +1,2 @@
 ### Delete a user
-DELETE http://localhost:4500/api/users/2
+DELETE http://localhost:4500/api/users/6

@@ -21,7 +21,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return user_crud.create_user(db, user)
 
 # Get a user by ID
-@router.get("/users/{user_id}", response_model=UserResponse)
+@router.get("/users/id/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     db_user = user_crud.get_user(db, user_id)
     if db_user is None:
@@ -29,7 +29,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 # Get a user by email
-@router.get("/users/{user_mail}", response_model=UserResponse)
+@router.get("/users/email/{user_mail}", response_model=UserResponse)
 def get_user_email(user_mail: str, db: Session = Depends(get_db)):
     db_user = user_crud.get_user_by_email(db, user_mail)
     if db_user is None:
