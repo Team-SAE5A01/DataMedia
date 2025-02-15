@@ -12,7 +12,7 @@ def get_db():
         db.close()
 
 @router.get("/test")
-def def_test():
+def config_route():
     return {
         "Test" : "Hello great people!",
         "ENV" : config.ENVIRONMENT,

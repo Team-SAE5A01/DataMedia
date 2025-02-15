@@ -5,7 +5,26 @@ from fastapi import HTTPException
 from src.db.models.user_models import User
 from src.db.schemas.user_schemas import UserCreate, UserUpdate
 
+
 def create_user(db: Session, user: UserCreate):
+    """
+    Create a new user in the database.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        user (UserCreate): User creation schema containing:
+            - nom (str): Last name of the user.
+            - prenom (str): First name of the user.
+            - date_de_naissance (date): User's birth date.
+            - email (str): Unique email address.
+            - mot_de_passe (str): Hashed password.
+
+    Returns:
+        User: The newly created user object.
+
+    Raises:
+        HTTPException (400): If the email already exists in the database.
+    """
     try:
         db_user = User(
             nom=user.nom,
@@ -22,19 +41,63 @@ def create_user(db: Session, user: UserCreate):
         db.rollback()
         raise HTTPException(status_code=400, detail="Email already exists")
 
+
 def get_user(db: Session, user_id: int):
+    """
+    Retrieve a user by their unique ID.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        user_id (int): The ID of the user.
+
+    Returns:
+        User: The user object if found.
+
+    Raises:
+        HTTPException (404): If the user is not found.
+    """
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+
 def get_user_by_email(db: Session, email: str):
+    """
+    Retrieve a user by their email address.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        email (str): The email of the user.
+
+    Returns:
+        User: The user object if found.
+
+    Raises:
+        HTTPException (404): If the user is not found.
+    """
     db_user = db.query(User).filter(User.email == email).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+
 def update_user(db: Session, user_id: int, user_update: UserUpdate):
+    """
+    Update an existing user's information.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        user_id (int): The ID of the user to update.
+        user_update (UserUpdate): Fields to update (partial update allowed).
+
+    Returns:
+        User: The updated user object.
+
+    Raises:
+        HTTPException (404): If the user is not found.
+        HTTPException (400): If updating the email to an existing one causes a conflict.
+    """
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -48,7 +111,21 @@ def update_user(db: Session, user_id: int, user_update: UserUpdate):
         db.rollback()
         raise HTTPException(status_code=400, detail="Email already exists")
 
+
 def delete_user(db: Session, user_id: int):
+    """
+    Delete a user from the database.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        user_id (int): The ID of the user to delete.
+
+    Returns:
+        User: The deleted user object.
+
+    Raises:
+        HTTPException (404): If the user is not found.
+    """
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
