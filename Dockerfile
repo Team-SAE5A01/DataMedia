@@ -17,4 +17,4 @@ COPY . /app/
 EXPOSE 4500
 
 # Command to run the application with a binding to 0.0.0.0 (access from outside the container)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "4500", "--reload"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "4500", "--reload"]

@@ -1,8 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.routes import router
-from app.core.config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
+from src.core.config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
+from src.api import users, test, trajets
+
 app = FastAPI()
+app.include_router(test.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(trajets.router, prefix="/api")
+# app.include_router(auth.router, prefix="/api")
 
 # CORS configuration
 if ENVIRONMENT.lower() in ["local", "development"]:
@@ -25,8 +30,6 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-app.include_router(router)
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=4500, reload=True)

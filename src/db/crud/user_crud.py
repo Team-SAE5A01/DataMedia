@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
-from pymongo.collection import Collection
 
-from app.db import schemas
-from app.db import models
+from src.db.models.user_models import User
+from src.db.schemas.user_schemas import UserCreate, UserUpdate
 
-def create_user(db: Session, user: models.UserCreate):
+def create_user(db: Session, user: UserCreate):
     db_user = user.User(
         nom=user.nom,
         prenom=user.prenom,
@@ -18,13 +17,13 @@ def create_user(db: Session, user: models.UserCreate):
     return db_user
 
 def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(User).filter(User.id == user_id).first()
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+    return db.query(User).filter(User.email == email).first()
 
-def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+def update_user(db: Session, user_id: int, user_update: UserUpdate):
+    db_user = db.query(User).filter(User.id == user_id).first()
     if db_user:
         for key, value in user_update.dict(exclude_unset=True).items():
             setattr(db_user, key, value)
@@ -33,7 +32,7 @@ def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
     return db_user
 
 def delete_user(db: Session, user_id: int):
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    db_user = db.query(User).filter(User.id == user_id).first()
     if db_user:
         db.delete(db_user)
         db.commit()

@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 from datetime import date, datetime
 
 class UserBase(BaseModel):
@@ -10,6 +10,13 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     mot_de_passe: str
+
+class UserUpdate(BaseModel):
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
+    date_de_naissance: Optional[date] = None
+    email: Optional[EmailStr] = None
+    mot_de_passe: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int
@@ -31,25 +38,3 @@ class CompagnieBase(BaseModel):
 class AssistantCreate(BaseModel):
     id: int
     id_compagnie: int
-
-# Schémas pour MongoDB
-class Step(BaseModel):
-    idTrajet: int
-    idAssistant: int
-    idTransport: int
-    dateHeureDepart: datetime
-    dateHeureArrive: datetime
-    bagageDepart: int
-    bagageArrive: int
-
-class TrajetBase(BaseModel):
-    idUser: int
-    lieuDepart: str
-    lieuArrivé: str
-    dateCréation: datetime
-    etat: str
-    steps: List[Step]
-
-class Transport(BaseModel):
-    _id: int
-    nom: str
