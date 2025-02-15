@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, TIMESTAMP
-from sqlalchemy.orm import relationship
 from src.core.config import Base
 
 class User(Base):
