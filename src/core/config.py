@@ -19,15 +19,15 @@ def get_secret(name, config=doppler_config, project=doppler_project):
 
 ENVIRONMENT = os.getenv("NEXT_PUBLIC_BUILD_ENV", "UNDEFINED")
 
-if ENVIRONMENT == 'local':
-    backend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
-    frontend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
-elif ENVIRONMENT == 'production':
+if ENVIRONMENT == 'production':
     backend_hostname = get_secret("NEXT_PUBLIC_AWS_BACKEND_IP")
     frontend_hostname = get_secret("NEXT_PUBLIC_AWS_FRONTEND_IP")
+elif ENVIRONMENT == 'development':
+    backend_hostname = "local-mysql"
+    frontend_hostname = "localhost"
 else:
-    backend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
-    frontend_hostname = get_secret("NEXT_PUBLIC_LOCALHOST")
+    backend_hostname = "local-mysql"
+    frontend_hostname = "localhost"
 
 BACKEND_HOSTNAME = backend_hostname
 FRONTEND_HOSTNAME = frontend_hostname
@@ -44,7 +44,7 @@ REQUEST_PROTOCOL = get_secret("NEXT_PUBLIC_REQUEST_PROTOCOL")
 # Configuration MySQL
 class MySqlConf():
     def launch_engine(self):
-        MYSQL_ENGINE_URL = "mysql+mysqlconnector://root:JesusATM12@local-mysql:3306/Wheeltrip"
+        MYSQL_ENGINE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{BACKEND_HOSTNAME}:{MYSQL_PORT}/{DATABASE}"
         
         engine = create_engine(MYSQL_ENGINE_URL)
         
