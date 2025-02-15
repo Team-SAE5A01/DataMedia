@@ -1,0 +1,9 @@
+### Update a user
+PUT http://localhost:4500/api/users/1
+Content-Type: application/json
+
+{
+  "name": "John Updated",
+  "email": "johnupdated@example.com",
+  "password": "newpassword"
+}

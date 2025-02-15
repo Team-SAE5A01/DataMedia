@@ -44,7 +44,7 @@ REQUEST_PROTOCOL = get_secret("NEXT_PUBLIC_REQUEST_PROTOCOL")
 # Configuration MySQL
 class MySqlConf():
     def launch_engine(self):
-        MYSQL_ENGINE_URL = f"mysql+mysqlconnector://{USERNAME}:{PASSWORD}@{BACKEND_HOSTNAME}:{MYSQL_PORT}/{DATABASE}"
+        MYSQL_ENGINE_URL = "mysql+mysqlconnector://root:JesusATM12@local-mysql:3306/Wheeltrip"
         
         engine = create_engine(MYSQL_ENGINE_URL)
         
