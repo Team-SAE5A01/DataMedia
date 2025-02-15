@@ -3,7 +3,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 from src.api import properties
 from src.core.config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
-from src.api import users, trajets
+from src.api import users
 
 app = FastAPI()
 app.include_router(properties.router, prefix="/api")

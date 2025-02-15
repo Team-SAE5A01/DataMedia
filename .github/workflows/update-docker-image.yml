@@ -5,7 +5,7 @@ on:
     branches:
       - main  # Trigger only on the 'main' branch
     paths:
-      - 'app/**'  # Only trigger when something inside /app changes
+      - 'src/**'  # Only trigger when something inside /src changes
 
 jobs:
   pull-and-push:
