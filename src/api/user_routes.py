@@ -18,7 +18,17 @@ def get_db():
         db.close()
 
 # Create a user
-@router.post("/users/", response_model=UserResponse, summary="Create a new user", description="Creates a new user with the provided details and stores it in the database.")
+@router.post(
+    "/users/", 
+    response_model=UserResponse, 
+    summary="Create a new user", 
+    description="Creates a new user with the provided details and stores it in the database. The `role` field must be one of the following:\n\n"
+                "Roles :\n"
+                "- **1**: Client\n"
+                "- **2**: Assistant\n"
+                "- **3**: Manager\n"
+                "- **4**: Admin"
+)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """
     Create a new user.
@@ -27,9 +37,16 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     - **family name**: Family name of the user
     - **date of birth**: Date of birth of the user
     - **email**: Email address (must be unique)
+    - **role**: User's role (must be one of the following values:  
+        - `1`: Client  
+        - `2`: Assistant  
+        - `3`: Manager  
+        - `4`: Admin
+    )
     - **password**: Securely hashed password
     """
     return user_crud.create_full_user(db, user)
+
 
 # Get a user by ID
 @router.get("/users/id/{user_id}", response_model=UserResponse, summary="Retrieve a user by ID", description="Fetches user details using the user's unique ID.")

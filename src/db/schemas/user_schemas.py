@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import date, datetime
 from src.db.models.user_models import RoleEnum
@@ -16,12 +16,19 @@ class UserBase(BaseModel):
     - **prenom**: First name of the user.
     - **date_de_naissance**: Date of birth of the user (YYYY-MM-DD format).
     - **email**: User's email address.
+    - **role**: Users's role (client, assistant...)
     """
     nom: Optional[str] = None
     prenom: Optional[str] = None
     date_de_naissance: date
     email: str
-    role: RoleEnum
+    role: int
+
+    @field_validator("role")
+    def validate_role(cls, v):
+        if v not in {role.value for role in RoleEnum}:
+            raise ValueError("Invalid role value")
+        return v
 
 
 class UserCreate(UserBase):
