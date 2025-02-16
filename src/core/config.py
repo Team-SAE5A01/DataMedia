@@ -3,6 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from pymongo import MongoClient
 from dopplersdk import DopplerSDK
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
 import os
 
 # Doppler config
@@ -63,3 +65,14 @@ class MongoConf():
         return MongoClient(MONGO_DATABASE_URL)[DATABASE]
     
 mongo_db = MongoConf().get_connection()
+
+# Secret key for JWT signing (store in environment variables in production)
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# OAuth2 Scheme
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

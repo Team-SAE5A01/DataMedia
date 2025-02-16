@@ -1,10 +1,18 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
+from passlib.context import CryptContext
 
 from src.db.models.user_models import User
 from src.db.schemas.user_schemas import UserCreate, UserUpdate
+from src.db.schemas.auth_schema import RegisterSchema
 
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt."""
+    return pwd_context.hash(password)
 
 def create_user(db: Session, user: UserCreate):
     """
@@ -26,12 +34,13 @@ def create_user(db: Session, user: UserCreate):
         HTTPException (400): If the email already exists in the database.
     """
     try:
+        hash_mot_de_passe = hash_password(user.mot_de_passe)
         db_user = User(
             nom=user.nom,
             prenom=user.prenom,
             date_de_naissance=user.date_de_naissance,
             email=user.email,
-            mot_de_passe=user.mot_de_passe,
+            mot_de_passe=hash_mot_de_passe,
         )
         db.add(db_user)
         db.commit()
@@ -40,7 +49,43 @@ def create_user(db: Session, user: UserCreate):
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=400, detail="Email already exists")
+    
+def register_user(user: RegisterSchema, db: Session):
+    """
+    Register a new user in the database with only date of birth, email, and password.
 
+    Args:
+        db (Session): SQLAlchemy database session.
+        user (UserCreate): User creation schema containing:
+            - date_de_naissance (date): User's birth date.
+            - email (str): Unique email address.
+            - mot_de_passe (str): Hashed password.
+
+    Returns:
+        User: The newly created user object.
+
+    Raises:
+        HTTPException (400): If the email already exists in the database.
+    """
+    if user.mot_de_passe != user.confirm_mot_de_passe:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
+    
+    hash_mot_de_passe = hash_password(user.mot_de_passe)
+
+    try:
+        db_user = User(
+            date_de_naissance=user.date_de_naissance,
+            email=user.email,
+            mot_de_passe=hash_mot_de_passe,
+        )
+        print(db_user)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Email already exists")
 
 def get_user(db: Session, user_id: int):
     """

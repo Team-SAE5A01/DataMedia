@@ -1,0 +1,10 @@
+POST http://localhost:4500/api/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "QSDQSdsqD@example.com",
+  "date_de_naissance": "s-02-16",
+  "mot_de_passe": "R",
+  "confirm_mot_de_passe": "REGISTER"
+}

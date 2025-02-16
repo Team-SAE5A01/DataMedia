@@ -1,28 +1,52 @@
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
-from src.api import properties
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.openapi.models import SecuritySchemeType, OAuthFlowPassword
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from fastapi.openapi.models import SecurityScheme
+from src.api import properties, users, auth
 from src.core.config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
-from src.api import users
 
 app = FastAPI()
+
+# Include your API routers
 app.include_router(properties.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
-# app.include_router(trajets.router, prefix="/api")
-# app.include_router(auth.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+
+# Define OAuth2 security scheme
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
+
     openapi_schema = get_openapi(
         title="DataMedia",
         version="0.1.0",
-        description="Documentation pour l'API DataMedia. Consultez moi (Alejo) pour quelconque suggestion, problème ou question.",
+        description="Documentation pour l'API DataMedia. Consultez-moi (Alejo) pour toute suggestion, problème ou question.",
         routes=app.routes,
     )
+
+    # Define security scheme for Swagger
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+        }
+    }
+
+    # Apply security globally to all routes
+    for path in openapi_schema["paths"]:
+        for method in openapi_schema["paths"][path]:
+            openapi_schema["paths"][path][method]["security"] = [{"BearerAuth": []}]
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
+# Apply custom OpenAPI schema
 app.openapi = custom_openapi
 
 # CORS configuration
@@ -32,12 +56,11 @@ if ENVIRONMENT.lower() in ["local", "development"]:
         "http://localhost:3000",
     ]
 else:
-    # CORS configuration
     origins = [
         f"{REQUEST_PROTOCOL}://{FRONTEND_HOSTNAME}:{WHEELTRIP_USER_PORT}",
     ]
 
-# Add CORS middleware to allow cross-origin requests
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

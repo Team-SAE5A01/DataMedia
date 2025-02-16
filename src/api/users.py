@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from src.db.schemas.user_schemas import UserResponse, UserCreate, UserUpdate
 from src.db.models import user_models
 from src.core import config
@@ -24,7 +23,9 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     """
     Create a new user.
 
-    - **name**: Full name of the user
+    - **name**: Name of the user
+    - **family name**: Family name of the user
+    - **date of birth**: Date of birth of the user
     - **email**: Email address (must be unique)
     - **password**: Securely hashed password
     """
