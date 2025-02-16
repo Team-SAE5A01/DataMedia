@@ -29,7 +29,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     - **email**: Email address (must be unique)
     - **password**: Securely hashed password
     """
-    return user_crud.create_user(db, user)
+    return user_crud.create_full_user(db, user)
 
 # Get a user by ID
 @router.get("/users/id/{user_id}", response_model=UserResponse, summary="Retrieve a user by ID", description="Fetches user details using the user's unique ID.")

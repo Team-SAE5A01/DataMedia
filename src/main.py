@@ -2,18 +2,15 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.openapi.models import SecuritySchemeType, OAuthFlowPassword
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from fastapi.openapi.models import SecurityScheme
-from src.api import properties, users, auth
+from src.api import properties, auth_routes, user_routes
 from src.core.config import FRONTEND_HOSTNAME, WHEELTRIP_USER_PORT, REQUEST_PROTOCOL, ENVIRONMENT
 
 app = FastAPI()
 
 # Include your API routers
 app.include_router(properties.router, prefix="/api")
-app.include_router(users.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
+app.include_router(user_routes.router, prefix="/api")
+app.include_router(auth_routes.router, prefix="/api")
 
 # Define OAuth2 security scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")

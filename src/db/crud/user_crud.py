@@ -14,7 +14,7 @@ def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
     return pwd_context.hash(password)
 
-def create_user(db: Session, user: UserCreate):
+def create_full_user(db: Session, user: UserCreate):
     """
     Create a new user in the database.
 
@@ -50,7 +50,7 @@ def create_user(db: Session, user: UserCreate):
         db.rollback()
         raise HTTPException(status_code=400, detail="Email already exists")
     
-def register_user(user: RegisterSchema, db: Session):
+def create_user(user: RegisterSchema, db: Session):
     """
     Register a new user in the database with only date of birth, email, and password.
 
@@ -77,8 +77,8 @@ def register_user(user: RegisterSchema, db: Session):
             date_de_naissance=user.date_de_naissance,
             email=user.email,
             mot_de_passe=hash_mot_de_passe,
+            role=user.role
         )
-        print(db_user)
         db.add(db_user)
         db.commit()
         db.refresh(db_user)

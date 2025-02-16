@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, datetime
+from src.db.models.user_models import RoleEnum
 
 # -------------------------------
 # User Schemas
@@ -16,10 +17,11 @@ class UserBase(BaseModel):
     - **date_de_naissance**: Date of birth of the user (YYYY-MM-DD format).
     - **email**: User's email address.
     """
-    nom: str
-    prenom: str
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
     date_de_naissance: date
     email: str
+    role: RoleEnum
 
 
 class UserCreate(UserBase):

@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from src.core.config import ALGORITHM, SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES
-from src.db.crud.user_crud import get_user_by_email, register_user
+from src.db.crud.user_crud import get_user_by_email, create_user
 from src.core import config
 from src.db.schemas.auth_schema import LoginSchema, RegisterSchema
 
@@ -53,11 +53,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=dict, tags=["Authentication"])
-async def register(user: RegisterSchema, db: Session = Depends(get_db)):
+async def register_user(user: RegisterSchema, db: Session = Depends(get_db)):
     """
     Register a new user and return an access token.
     """
-    new_user = register_user(user, db)
+    new_user = create_user(user, db)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"id": new_user.id, "sub": new_user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
