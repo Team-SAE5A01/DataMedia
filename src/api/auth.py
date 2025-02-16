@@ -59,7 +59,7 @@ async def register(user: RegisterSchema, db: Session = Depends(get_db)):
     """
     new_user = register_user(user, db)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": new_user.email}, expires_delta=access_token_expires)
+    access_token = create_access_token(data={"id": new_user.id, "sub": new_user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=dict, tags=["Authentication"])
@@ -75,7 +75,7 @@ async def login(login_data: LoginSchema, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+    access_token = create_access_token(data={"id": user.id, "sub": user.email}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/check_token", response_model=dict, tags=["Authentication"])
