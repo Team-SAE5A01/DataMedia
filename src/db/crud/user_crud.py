@@ -3,8 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from passlib.context import CryptContext
 
-from src.db.models.user_models import User
-from src.db.schemas.user_schemas import UserCreate, UserUpdate
+from src.db.models.user_models import Client, Assistant, User
+from src.db.schemas.user_schemas import UserUpdate
 from src.db.schemas.auth_schema import RegisterSchema
 
 # Password hashing context
@@ -14,166 +14,87 @@ def hash_password(password: str) -> str:
     """Hash a password using bcrypt."""
     return pwd_context.hash(password)
 
-def create_full_user(db: Session, user: UserCreate):
+def create_user(db: Session, user: RegisterSchema):
     """
-    Create a new user in the database.
-
-    Args:
-        db (Session): SQLAlchemy database session.
-        user (UserCreate): User creation schema containing:
-            - nom (str): Last name of the user.
-            - prenom (str): First name of the user.
-            - date_de_naissance (date): User's birth date.
-            - email (str): Unique email address.
-            - mot_de_passe (str): Hashed password.
-
-    Returns:
-        User: The newly created user object.
-
-    Raises:
-        HTTPException (400): If the email already exists in the database.
+    Registers a new user dynamically into Clients or Assistants.
     """
-    try:
-        hash_mot_de_passe = hash_password(user.mot_de_passe)
-        db_user = User(
-            nom=user.nom,
-            prenom=user.prenom,
-            date_de_naissance=user.date_de_naissance,
-            email=user.email,
-            mot_de_passe=hash_mot_de_passe,
-        )
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    except IntegrityError:
-        db.rollback()
+    # Ensure email is unique
+    if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already exists")
-    
-def create_user(user: RegisterSchema, db: Session):
-    """
-    Register a new user in the database with only date of birth, email, and password.
 
-    Args:
-        db (Session): SQLAlchemy database session.
-        user (UserCreate): User creation schema containing:
-            - date_de_naissance (date): User's birth date.
-            - email (str): Unique email address.
-            - mot_de_passe (str): Hashed password.
-
-    Returns:
-        User: The newly created user object.
-
-    Raises:
-        HTTPException (400): If the email already exists in the database.
-    """
     if user.mot_de_passe != user.confirm_mot_de_passe:
         raise HTTPException(status_code=400, detail="Passwords do not match")
-    
-    hash_mot_de_passe = hash_password(user.mot_de_passe)
 
-    try:
-        db_user = User(
-            date_de_naissance=user.date_de_naissance,
-            email=user.email,
-            mot_de_passe=hash_mot_de_passe,
-            role=user.role
-        )
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Email already exists")
+    hashed_password = hash_password(user.mot_de_passe)
 
-def get_user(db: Session, user_id: int):
-    """
-    Retrieve a user by their unique ID.
+    # Shared fields
+    user_data = {
+        "email": user.email,
+        "mot_de_passe": hashed_password,
+        "date_naissance": user.date_naissance,
+        "nom": user.nom,
+        "prenom": user.prenom,
+        "role": user.role
+    }
 
-    Args:
-        db (Session): SQLAlchemy database session.
-        user_id (int): The ID of the user.
+    new_user = None
+    # Instantiate the correct subclass
+    if user.role == "client":
+        user_data["type_handicap"] = user.type_handicap
+        new_user = Client(**user_data)
+    elif user.role == "assistant":
+        new_user = Assistant(**user_data)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid role provided")
 
-    Returns:
-        User: The user object if found.
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
 
-    Raises:
-        HTTPException (404): If the user is not found.
-    """
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
+    return new_user
 
 def get_user_by_email(db: Session, email: str):
     """
-    Retrieve a user by their email address.
-
-    Args:
-        db (Session): SQLAlchemy database session.
-        email (str): The email of the user.
-
-    Returns:
-        User: The user object if found.
-
-    Raises:
-        HTTPException (404): If the user is not found.
+    Retrieve a user by email from the Users table.
     """
-    db_user = db.query(User).filter(User.email == email).first()
-    if not db_user:
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+    return user
 
+def get_user_by_id(db: Session, id: int):
+    """
+    Retrieve a user by email from the Users table.
+    """
+    user = db.query(User).filter(User.id == id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 def update_user(db: Session, user_id: int, user_update: UserUpdate):
     """
     Update an existing user's information.
-
-    Args:
-        db (Session): SQLAlchemy database session.
-        user_id (int): The ID of the user to update.
-        user_update (UserUpdate): Fields to update (partial update allowed).
-
-    Returns:
-        User: The updated user object.
-
-    Raises:
-        HTTPException (404): If the user is not found.
-        HTTPException (400): If updating the email to an existing one causes a conflict.
     """
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if not db_user:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
     try:
         for key, value in user_update.dict(exclude_unset=True).items():
-            setattr(db_user, key, value)
+            setattr(user, key, value)
         db.commit()
-        db.refresh(db_user)
-        return db_user
+        db.refresh(user)
+        return user
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=400, detail="Email already exists")
 
-
 def delete_user(db: Session, user_id: int):
     """
     Delete a user from the database.
-
-    Args:
-        db (Session): SQLAlchemy database session.
-        user_id (int): The ID of the user to delete.
-
-    Returns:
-        User: The deleted user object.
-
-    Raises:
-        HTTPException (404): If the user is not found.
     """
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if not db_user:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    db.delete(db_user)
+    db.delete(user)
     db.commit()
-    return db_user
+    return {"message": "User deleted successfully!"}

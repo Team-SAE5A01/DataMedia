@@ -1,6 +1,17 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from typing import Optional
 from datetime import date
-from src.db.models.user_models import RoleEnum
+from enum import Enum
+
+class UserRole(str, Enum):
+    client = "client"
+    assistant = "assistant"
+
+class HandicapType(str, Enum):
+    visuel = "visuel"
+    auditif = "auditif"
+    cognitif = "cognitif"
+    moteur = "moteur"
 
 class LoginSchema(BaseModel):
     """
@@ -11,16 +22,55 @@ class LoginSchema(BaseModel):
 
 class RegisterSchema(BaseModel):
     """
-    Schema for user registration.
+    Schema for user registration. Handles Clients, Assistants, and other roles.
     """
     email: EmailStr
-    date_de_naissance: date
     mot_de_passe: str
     confirm_mot_de_passe: str
-    role: int
+    role: UserRole
+    date_naissance: Optional[date] = None
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
 
-    @field_validator("role")
-    def validate_role(cls, v):
-        if v not in {role.value for role in RoleEnum}:
-            raise ValueError("Invalid role value")
-        return v
+    # Client-specific fields
+    type_handicap: Optional[HandicapType] = None
+
+    # Assistant-specific fields
+    disponible: Optional[bool] = None
+
+    class Config:
+        use_enum_values = True  # Ensures enum values are stored as strings
+
+    @model_validator(mode="before")
+    def validate_role_fields(cls, values):
+        """
+        Ensures only relevant fields are provided based on the user's role.
+        """
+        role = values.get("role")
+        type_handicap = values.get("type_handicap")
+        disponible = values.get("disponible")
+
+        # Clients must have a handicap
+        if role == "client":
+            if type_handicap is None:
+                raise ValueError("Clients must have a handicap type.")
+            if disponible is not None:
+                raise ValueError("Clients should not have a 'disponible' field.")
+
+        # Assistants cannot have a handicap but can have 'disponible'
+        elif role == "assistant":
+            if type_handicap is not None:
+                raise ValueError("Assistants cannot have a handicap type.")
+            if disponible is None:
+                values["disponible"] = True  # Default to True if not provided
+
+        return values
+
+    @model_validator(mode="before")
+    def check_passwords_match(cls, values):
+        """
+        Ensures password and confirmation match.
+        """
+        if values.get("mot_de_passe") != values.get("confirm_mot_de_passe"):
+            raise ValueError("Passwords do not match.")
+        return values

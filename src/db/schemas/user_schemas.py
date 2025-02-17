@@ -1,8 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import date, datetime
-from src.db.models.user_models import RoleEnum
-
+from src.db.schemas.auth_schema import UserRole
 # -------------------------------
 # User Schemas
 # -------------------------------
@@ -20,13 +19,13 @@ class UserBase(BaseModel):
     """
     nom: Optional[str] = None
     prenom: Optional[str] = None
-    date_de_naissance: date
+    date_naissance: date
     email: str
-    role: int
+    role: str
 
     @field_validator("role")
     def validate_role(cls, v):
-        if v not in {role.value for role in RoleEnum}:
+        if v not in {role.value for role in UserRole}:
             raise ValueError("Invalid role value")
         return v
 
@@ -54,7 +53,7 @@ class UserUpdate(BaseModel):
     """
     nom: Optional[str] = None
     prenom: Optional[str] = None
-    date_de_naissance: Optional[date] = None
+    date_naissance: Optional[date] = None
     email: Optional[EmailStr] = None
     mot_de_passe: Optional[str] = None
 

@@ -17,47 +17,16 @@ def get_db():
     finally:
         db.close()
 
-# Create a user
-@router.post(
-    "/users/", 
-    response_model=UserResponse, 
-    summary="Create a new user", 
-    description="Creates a new user with the provided details and stores it in the database. The `role` field must be one of the following:\n\n"
-                "Roles :\n"
-                "- **1**: Client\n"
-                "- **2**: Assistant\n"
-                "- **3**: Manager\n"
-                "- **4**: Admin"
-)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    """
-    Create a new user.
-
-    - **name**: Name of the user
-    - **family name**: Family name of the user
-    - **date of birth**: Date of birth of the user
-    - **email**: Email address (must be unique)
-    - **role**: User's role (must be one of the following values:  
-        - `1`: Client  
-        - `2`: Assistant  
-        - `3`: Manager  
-        - `4`: Admin
-    )
-    - **password**: Securely hashed password
-    """
-    return user_crud.create_full_user(db, user)
-
-
 # Get a user by ID
 @router.get("/users/id/{user_id}", response_model=UserResponse, summary="Retrieve a user by ID", description="Fetches user details using the user's unique ID.")
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user_id(user_id: int, db: Session = Depends(get_db)):
     """
     Get a user by their ID.
 
     - **user_id**: The unique identifier of the user
     - **Returns**: User details if found, otherwise raises a 404 error.
     """
-    db_user = user_crud.get_user(db, user_id)
+    db_user = user_crud.get_user_by_id(db, user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
