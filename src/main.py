@@ -48,14 +48,10 @@ app.openapi = custom_openapi
 
 # CORS configuration
 if ENVIRONMENT.lower() in ["local", "development"]:
-    origins = [
-        "http://127.0.0.1:3000",
-        "http://localhost:3000",
-    ]
+    origins = ["*"]  # Allows all origins (any IP)
 else:
-    origins = [
-        f"{REQUEST_PROTOCOL}://{FRONTEND_HOSTNAME}:{WHEELTRIP_USER_PORT}",
-    ]
+    origins = ["*"]  # Allows all origins in production too (use with caution)
+
 
 # Add CORS middleware
 app.add_middleware(
