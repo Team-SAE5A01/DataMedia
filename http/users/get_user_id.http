@@ -1,2 +1,0 @@
-### Get a user by ID
-GET http://localhost:4500/api/users/id/13

@@ -1,9 +1,0 @@
-### Token Request
-POST http://localhost:4500/api/login
-Accept: application/json
-Content-Type: application/json
-
-{
-  "email": "REGISTER@example.com",
-  "mot_de_passe": "REGISTER"
-}

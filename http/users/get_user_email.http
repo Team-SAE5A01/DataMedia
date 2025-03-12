@@ -1,2 +1,0 @@
-### Get a user by email
-GET http://localhost:4500/api/users/email/johndoe@example.com
