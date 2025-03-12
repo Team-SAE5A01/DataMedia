@@ -1,2 +1,0 @@
-### List all users
-GET http://localhost:4500/api/users/
