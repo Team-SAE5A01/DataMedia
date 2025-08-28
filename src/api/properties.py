@@ -14,7 +14,7 @@ def get_db():
 @router.get("/test")
 def config_route():
     return {
-        "Test" : "Hello great people!",
+        "STATUS" : "DataMedia API status is healthy.",
         "ENV" : config.ENVIRONMENT,
         "BACKEND_HOST" : config.BACKEND_HOSTNAME,
         "FRONT_HOST" : config.FRONTEND_HOSTNAME,
